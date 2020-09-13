@@ -8,8 +8,9 @@ import (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "filezy",
-	Short: "filezy is a CLI-based file management tool",
+	Use:     "filezy",
+	Short:   "filezy is a CLI-based file management tool",
+	Version: "0.0.1",
 }
 
 func must(err error) {

@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -17,11 +19,14 @@ var prefix string
 var suffix string
 var regexPattern string
 var extension string
+var enableLog bool
 
 var renameCmd = &cobra.Command{
-	Use:   "rename",
-	Short: "Rename files in batch",
+	Use:   "rename [filename]",
+	Short: "Rename files in batch, auto-increment number will be added as suffix",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		filename := args[0]
 		files := make([]model.File, 0)
 		if filesInFolder, err := helper.GetFiles(folder, isRecursive); err == nil {
 			for _, file := range filesInFolder {
@@ -44,11 +49,19 @@ var renameCmd = &cobra.Command{
 		total := len(files)
 
 		for i, file := range files {
-			fmt.Printf("%v: %+v\n", helper.ToString(i+1, helper.NumberOfDigits(total)), file)
+			newFileName := file.Folder + filename + file.Ext
+			numberStr := helper.ToString(i+1, helper.NumberOfDigits(total))
+			if total > 1 {
+				newFileName = file.Folder + filename + "-" + numberStr + file.Ext
+			}
+
+			err := os.Rename(file.FullPath, newFileName)
+			must(err)
+
+			if enableLog {
+				fmt.Printf("%v: Rename %v --> %v\n", time.Now().Format(time.RFC3339), file.FullPath, newFileName)
+			}
 		}
-
-		fmt.Println("Total files:", total, "Number of digit:", helper.NumberOfDigits(total))
-
 	},
 }
 
@@ -59,6 +72,7 @@ func init() {
 	renameCmd.Flags().StringVarP(&suffix, "suffix", "s", "", "Return files that have the specified suffix in the file name")
 	renameCmd.Flags().StringVarP(&regexPattern, "regex", "x", "", "Return files that match the regex pattern in the file name")
 	renameCmd.Flags().StringVarP(&extension, "ext", "e", "", "Return files that have the specified extension")
+	renameCmd.Flags().BoolVarP(&enableLog, "log", "l", false, "Print logs")
 
 	RootCmd.AddCommand(renameCmd)
 }
