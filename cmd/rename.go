@@ -47,10 +47,10 @@ var renameCmd = &cobra.Command{
 		}
 
 		total := len(files)
-
+		noOfDigits := helper.NumberOfDigits(total)
 		for i, file := range files {
 			newFileName := file.Folder + filename + file.Ext
-			numberStr := helper.ToString(i+1, helper.NumberOfDigits(total))
+			numberStr := helper.ToString(i+1, noOfDigits)
 			if total > 1 {
 				newFileName = file.Folder + filename + "-" + numberStr + file.Ext
 			}
