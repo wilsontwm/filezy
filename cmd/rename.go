@@ -13,14 +13,6 @@ import (
 	"github.com/wilsontwm/filezy/model"
 )
 
-var isRecursive bool
-var folder string
-var prefix string
-var suffix string
-var regexPattern string
-var extension string
-var enableLog bool
-
 var renameCmd = &cobra.Command{
 	Use:   "rename [filename]",
 	Short: "Rename files in batch, auto-increment number will be added as suffix",
@@ -66,13 +58,13 @@ var renameCmd = &cobra.Command{
 }
 
 func init() {
-	renameCmd.Flags().BoolVarP(&isRecursive, "recursive", "r", false, "Scan files in sub-directories recursively")
+	/*renameCmd.Flags().BoolVarP(&isRecursive, "recursive", "r", false, "Scan files in sub-directories recursively")
 	renameCmd.Flags().StringVarP(&folder, "folder", "f", "./", "Target folder to be scanned")
 	renameCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "Return files that have the specified prefix in the file name")
 	renameCmd.Flags().StringVarP(&suffix, "suffix", "s", "", "Return files that have the specified suffix in the file name")
 	renameCmd.Flags().StringVarP(&regexPattern, "regex", "x", "", "Return files that match the regex pattern in the file name")
 	renameCmd.Flags().StringVarP(&extension, "ext", "e", "", "Return files that have the specified extension")
 	renameCmd.Flags().BoolVarP(&enableLog, "log", "l", false, "Print logs")
-
+	*/
 	RootCmd.AddCommand(renameCmd)
 }
