@@ -1,8 +1,10 @@
 package helper
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/wilsontwm/filezy/model"
 )
@@ -22,8 +24,13 @@ func GetFiles(folder string, isRecursive bool) ([]model.File, error) {
 
 	if isRecursive {
 		err := filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
+			file, err := filepath.Abs(path)
+			if err != nil {
+				return nil
+			}
+
 			if !info.IsDir() {
-				files = append(files, model.ConstructFile(path))
+				files = append(files, model.ConstructFile(file))
 			}
 			return nil
 		})
@@ -40,7 +47,11 @@ func GetFiles(folder string, isRecursive bool) ([]model.File, error) {
 		if fileinfo, err := f.Readdir(-1); err == nil {
 			for _, file := range fileinfo {
 				if !file.IsDir() {
-					files = append(files, model.ConstructFile(file.Name()))
+					folder, err := filepath.Abs(folder)
+					if err != nil {
+						return files, err
+					}
+					files = append(files, model.ConstructFile(folder+"\\"+file.Name()))
 				}
 			}
 		} else {
@@ -50,4 +61,20 @@ func GetFiles(folder string, isRecursive bool) ([]model.File, error) {
 	}
 
 	return files, nil
+}
+
+// GetNewFilePath :
+func GetNewFilePath(file model.File, sourceFolder, targetFolder string) (string, error) {
+	if file.FullPath == "" {
+		return "", fmt.Errorf("Original file is not valid.")
+	}
+
+	subfolder := GetSubfolder(file, sourceFolder)
+
+	return targetFolder + subfolder + file.File, nil
+}
+
+// GetSubfolder :
+func GetSubfolder(file model.File, sourceFolder string) string {
+	return strings.TrimPrefix(file.Folder, sourceFolder)
 }

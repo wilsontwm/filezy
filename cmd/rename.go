@@ -3,14 +3,11 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"regexp"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/wilsontwm/filezy/helper"
-	"github.com/wilsontwm/filezy/model"
 )
 
 var renameCmd = &cobra.Command{
@@ -19,24 +16,9 @@ var renameCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		filename := args[0]
-		files := make([]model.File, 0)
-		if filesInFolder, err := helper.GetFiles(folder, isRecursive); err == nil {
-			for _, file := range filesInFolder {
-				if prefix != "" && !strings.HasPrefix(file.FileName, prefix) {
-					continue
-				} else if suffix != "" && !strings.HasSuffix(file.FileName, suffix) {
-					continue
-				} else if regexPattern != "" && !regexp.MustCompile(regexPattern).MatchString(file.FileName) {
-					continue
-				} else if extension != "" && strings.TrimSuffix(file.Ext, extension) != "." {
-					continue
-				}
 
-				files = append(files, file)
-			}
-		} else {
-			must(err)
-		}
+		files, err := getFilteredFiles(folder)
+		must(err)
 
 		total := len(files)
 		noOfDigits := helper.NumberOfDigits(total)
@@ -58,13 +40,7 @@ var renameCmd = &cobra.Command{
 }
 
 func init() {
-	/*renameCmd.Flags().BoolVarP(&isRecursive, "recursive", "r", false, "Scan files in sub-directories recursively")
 	renameCmd.Flags().StringVarP(&folder, "folder", "f", "./", "Target folder to be scanned")
-	renameCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "Return files that have the specified prefix in the file name")
-	renameCmd.Flags().StringVarP(&suffix, "suffix", "s", "", "Return files that have the specified suffix in the file name")
-	renameCmd.Flags().StringVarP(&regexPattern, "regex", "x", "", "Return files that match the regex pattern in the file name")
-	renameCmd.Flags().StringVarP(&extension, "ext", "e", "", "Return files that have the specified extension")
-	renameCmd.Flags().BoolVarP(&enableLog, "log", "l", false, "Print logs")
-	*/
+
 	RootCmd.AddCommand(renameCmd)
 }
